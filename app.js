@@ -1,5 +1,5 @@
 
-const STORAGE_KEY = 'goshoin-manager-v1-1';
+const STORAGE_KEY = 'goshoin-manager-v1';
 
 const seedAirports = [
   {name:'羽田空港', code:'HND', pref:'東京都'},
@@ -69,14 +69,42 @@ let editingId = null;
 let tempPhoto = '';
 
 function loadState(){
+  let loaded = null;
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       const parsed = JSON.parse(raw);
-      if(Array.isArray(parsed.airports)) return parsed;
+      if(Array.isArray(parsed.airports)) loaded = parsed;
     }
   }catch(e){}
-  return {airports: JSON.parse(JSON.stringify(seedAirports))};
+
+  if(!loaded){
+    loaded = {airports: JSON.parse(JSON.stringify(seedAirports))};
+  } else {
+    // 既存データを残したまま、不足している公式56空港を自動追加
+    const existingKeys = new Set(
+      loaded.airports.map(a => (a.code || '').trim().toUpperCase()).filter(Boolean)
+    );
+    let maxCreated = Math.max(-1, ...loaded.airports.map(a => a.createdAt ?? 0));
+
+    seedAirports.forEach(seed => {
+      const code = (seed.code || '').trim().toUpperCase();
+      if(!existingKeys.has(code)){
+        loaded.airports.push({
+          ...JSON.parse(JSON.stringify(seed)),
+          id: 'seed-merge-' + code,
+          createdAt: ++maxCreated
+        });
+        existingKeys.add(code);
+      }
+    });
+  }
+
+  // マージ後の内容を保存
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(loaded));
+  }catch(e){}
+  return loaded;
 }
 function saveState(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
