@@ -59,7 +59,7 @@ const seedAirports = [
   {name:'宮古空港', code:'MMY', pref:'沖縄県'},
   {name:'根室中標津空港', code:'SHB', pref:'北海道'}
 ].map((a,i)=>({
-  id:'seed-'+i, ...a, collected:false, date:'', memo:'', createdAt:i
+  id:'seed-'+i, ...a, collected:false, memo:'', createdAt:i
 }));
 
 let state = loadState();
@@ -133,7 +133,7 @@ function renderHome(){
 
   const recent = state.airports
     .filter(a=>a.collected)
-    .sort((a,b)=>(b.date||'').localeCompare(a.date||''))
+    .sort((a,b)=>(b.createdAt??0)-(a.createdAt??0))
     .slice(0,5);
 
   const el = document.getElementById('recentList');
@@ -145,7 +145,7 @@ function renderHome(){
         <div class="recent-thumb" style="display:grid;place-items:center;color:#9f3b2e;font-weight:800;">翔</div>
         <div class="recent-info">
           <strong>${esc(a.name)}</strong>
-          <small>${esc(a.code || '---')} ${a.date ? '・ '+esc(a.date) : ''}</small>
+          <small>${esc(a.code || '---')}</small>
         </div>
         <span class="chev">›</span>
       </button>`).join('');
@@ -222,7 +222,6 @@ function openAirport(id){
   document.getElementById('airportCode').value=a.code||'';
   document.getElementById('airportPref').value=a.pref||'';
   document.getElementById('airportCollected').checked=!!a.collected;
-  document.getElementById('airportDate').value=a.date||'';
   document.getElementById('airportMemo').value=a.memo||'';
   document.getElementById('deleteAirportBtn').style.display='block';
   dialog.showModal();
@@ -237,7 +236,6 @@ function openNewAirport(){
   document.getElementById('airportCode').value='';
   document.getElementById('airportPref').value='';
   document.getElementById('airportCollected').checked=false;
-  document.getElementById('airportDate').value='';
   document.getElementById('airportMemo').value='';
   document.getElementById('deleteAirportBtn').style.display='none';
   dialog.showModal();
@@ -246,10 +244,6 @@ document.getElementById('quickAddBtn').addEventListener('click',openNewAirport);
 document.getElementById('addAirportBtn').addEventListener('click',openNewAirport);
 document.getElementById('closeDialogBtn').addEventListener('click',()=>dialog.close());
 
-document.getElementById('airportCollected').addEventListener('change',e=>{
-  const date=document.getElementById('airportDate');
-  if(e.target.checked && !date.value) date.value=new Date().toISOString().slice(0,10);
-});
 
 
 document.getElementById('airportForm').addEventListener('submit',(e)=>{
@@ -259,7 +253,6 @@ document.getElementById('airportForm').addEventListener('submit',(e)=>{
     code:document.getElementById('airportCode').value.trim().toUpperCase(),
     pref:document.getElementById('airportPref').value.trim(),
     collected:document.getElementById('airportCollected').checked,
-    date:document.getElementById('airportDate').value,
     memo:document.getElementById('airportMemo').value.trim(),
   };
   if(!data.name) return;
