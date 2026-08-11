@@ -59,14 +59,13 @@ const seedAirports = [
   {name:'宮古空港', code:'MMY', pref:'沖縄県'},
   {name:'根室中標津空港', code:'SHB', pref:'北海道'}
 ].map((a,i)=>({
-  id:'seed-'+i, ...a, collected:false, date:'', memo:'', photo:'', createdAt:i
+  id:'seed-'+i, ...a, collected:false, date:'', memo:'', createdAt:i
 }));
 
 let state = loadState();
 let activeFilter = 'all';
 let sortMode = 'created';
 let editingId = null;
-let tempPhoto = '';
 
 function loadState(){
   let loaded = null;
@@ -143,7 +142,7 @@ function renderHome(){
   } else {
     el.innerHTML = recent.map(a=>`
       <button class="recent-card" onclick="openAirport('${a.id}')">
-        ${a.photo ? `<img class="recent-thumb" src="${a.photo}" alt="">` : `<div class="recent-thumb" style="display:grid;place-items:center;color:#9f3b2e;font-weight:800;">翔</div>`}
+        <div class="recent-thumb" style="display:grid;place-items:center;color:#9f3b2e;font-weight:800;">翔</div>
         <div class="recent-info">
           <strong>${esc(a.name)}</strong>
           <small>${esc(a.code || '---')} ${a.date ? '・ '+esc(a.date) : ''}</small>
@@ -217,7 +216,6 @@ function openAirport(id){
   const a=state.airports.find(x=>x.id===id);
   if(!a) return;
   editingId=id;
-  tempPhoto=a.photo||'';
   document.getElementById('dialogTitle').textContent='空港詳細';
   document.getElementById('airportId').value=a.id;
   document.getElementById('airportName').value=a.name||'';
@@ -227,14 +225,12 @@ function openAirport(id){
   document.getElementById('airportDate').value=a.date||'';
   document.getElementById('airportMemo').value=a.memo||'';
   document.getElementById('deleteAirportBtn').style.display='block';
-  updatePhotoPreview();
   dialog.showModal();
 }
 window.openAirport=openAirport;
 
 function openNewAirport(){
   editingId=null;
-  tempPhoto='';
   document.getElementById('dialogTitle').textContent='空港を追加';
   document.getElementById('airportId').value='';
   document.getElementById('airportName').value='';
@@ -244,7 +240,6 @@ function openNewAirport(){
   document.getElementById('airportDate').value='';
   document.getElementById('airportMemo').value='';
   document.getElementById('deleteAirportBtn').style.display='none';
-  updatePhotoPreview();
   dialog.showModal();
 }
 document.getElementById('quickAddBtn').addEventListener('click',openNewAirport);
@@ -256,46 +251,6 @@ document.getElementById('airportCollected').addEventListener('change',e=>{
   if(e.target.checked && !date.value) date.value=new Date().toISOString().slice(0,10);
 });
 
-document.getElementById('photoInput').addEventListener('change',async(e)=>{
-  const f=e.target.files?.[0];
-  if(!f) return;
-  tempPhoto=await resizeImage(f,1200,0.82);
-  updatePhotoPreview();
-  e.target.value='';
-});
-document.getElementById('removePhotoBtn').addEventListener('click',()=>{
-  tempPhoto='';
-  updatePhotoPreview();
-});
-function updatePhotoPreview(){
-  const img=document.getElementById('photoPreview');
-  const ph=document.getElementById('photoPlaceholder');
-  const rm=document.getElementById('removePhotoBtn');
-  if(tempPhoto){
-    img.src=tempPhoto; img.style.display='block'; ph.style.display='none'; rm.style.display='inline-block';
-  }else{
-    img.removeAttribute('src'); img.style.display='none'; ph.style.display='flex'; rm.style.display='none';
-  }
-}
-function resizeImage(file,maxSide,quality){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onload=()=>{
-      const img=new Image();
-      img.onload=()=>{
-        let {width,height}=img;
-        const scale=Math.min(1,maxSide/Math.max(width,height));
-        width=Math.round(width*scale); height=Math.round(height*scale);
-        const canvas=document.createElement('canvas');
-        canvas.width=width; canvas.height=height;
-        canvas.getContext('2d').drawImage(img,0,0,width,height);
-        resolve(canvas.toDataURL('image/jpeg',quality));
-      };
-      img.onerror=reject; img.src=reader.result;
-    };
-    reader.onerror=reject; reader.readAsDataURL(file);
-  });
-}
 
 document.getElementById('airportForm').addEventListener('submit',(e)=>{
   e.preventDefault();
@@ -306,7 +261,6 @@ document.getElementById('airportForm').addEventListener('submit',(e)=>{
     collected:document.getElementById('airportCollected').checked,
     date:document.getElementById('airportDate').value,
     memo:document.getElementById('airportMemo').value.trim(),
-    photo:tempPhoto
   };
   if(!data.name) return;
   if(editingId){

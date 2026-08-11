@@ -67,7 +67,7 @@ h1{font-size:26px;margin:3px 0 0;letter-spacing:.06em}
 .settings-row{width:100%;display:flex;align-items:center;justify-content:space-between;border:none;border-top:1px solid var(--line);padding:15px;background:transparent;text-align:left}
 .file-row{position:relative;cursor:pointer}
 .file-row input{display:none}
-.settings-row.danger,.small-danger,.delete-btn{color:#b03932}
+.settings-row.danger,.delete-btn{color:#b03932}
 .about{padding-bottom:12px}
 .about p{padding:0 15px;margin:8px 0;font-size:13px;line-height:1.6}
 .muted{color:var(--muted)}
@@ -82,12 +82,7 @@ dialog::backdrop{background:rgba(25,22,18,.42);backdrop-filter:blur(3px)}
 .dialog-head{position:sticky;top:0;z-index:3;background:rgba(247,243,234,.96);backdrop-filter:blur(12px);display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)}
 .dialog-head h2{text-align:center;font-size:16px;margin:0}
 .dialog-head button:last-child{text-align:right}
-.photo-box{margin:16px 0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center}
-.photo-box img{display:none;width:100%;max-height:270px;object-fit:contain;border-radius:12px;margin-bottom:10px}
-.photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);padding:18px}
-.photo-button{display:inline-block;background:var(--ink);color:white;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700}
-.photo-button input{display:none}
-.small-danger{border:none;background:none;padding:10px;font-size:12px}
+
 .field{display:block;margin:14px 0}
 .field span{display:block;font-size:12px;color:var(--muted);font-weight:700;margin:0 0 6px 2px}
 .field input,.field textarea{width:100%;border:1px solid var(--line);background:var(--card);padding:12px;border-radius:12px;outline:none}
