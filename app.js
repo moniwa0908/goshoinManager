@@ -120,7 +120,15 @@ function navTo(view){
   window.scrollTo({top:0,behavior:'instant'});
 }
 document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>navTo(b.dataset.view)));
-document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>navTo(b.dataset.nav)));
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.nav==='airports'){
+    activeFilter='all';
+    document.querySelectorAll('.filter-btn').forEach(x=>{
+      x.classList.toggle('active', x.dataset.filter==='all');
+    });
+  }
+  navTo(b.dataset.nav);
+}));
 
 function renderHome(){
   const total = state.airports.length;
