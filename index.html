@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#f7f3ea" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="御翔印帳" />
+  <title>御翔印帳</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">AIRPORT STAMP COLLECTION</div>
+        <h1>御翔印帳</h1>
+      </div>
+      <button id="quickAddBtn" class="icon-btn" aria-label="空港追加">＋</button>
+    </header>
+
+    <main id="mainContent">
+      <section id="homeView" class="view active">
+        <div class="hero-card">
+          <div>
+            <div class="hero-label">COLLECTION</div>
+            <div class="hero-count"><span id="homeCollected">0</span><small> / <span id="homeTotal">0</span> 空港</small></div>
+            <div id="homePercent" class="hero-percent">0%</div>
+          </div>
+          <div class="stamp-mark">翔</div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-track"><div id="homeProgress" class="progress-bar"></div></div>
+        </div>
+
+        <div class="section-head">
+          <h2>最近取得した御翔印</h2>
+        </div>
+        <div id="recentList" class="card-list"></div>
+
+        <div class="section-head">
+          <h2>クイックメニュー</h2>
+        </div>
+        <div class="quick-grid">
+          <button class="quick-card" data-nav="airports">
+            <span class="quick-icon">✈</span>
+            <strong>空港一覧</strong>
+            <small>取得状況を見る</small>
+          </button>
+          <button class="quick-card" id="uncollectedQuick">
+            <span class="quick-icon">○</span>
+            <strong>未取得</strong>
+            <small>残りを確認</small>
+          </button>
+        </div>
+      </section>
+
+      <section id="airportsView" class="view">
+        <div class="search-row">
+          <input id="searchInput" type="search" placeholder="空港名・コードで検索" />
+        </div>
+        <div class="segmented">
+          <button class="filter-btn active" data-filter="all">すべて</button>
+          <button class="filter-btn" data-filter="collected">取得済み</button>
+          <button class="filter-btn" data-filter="uncollected">未取得</button>
+        </div>
+        <div class="list-summary">
+          <span id="listSummary">0件</span>
+          <button id="sortBtn" class="text-btn">並び替え：登録順</button>
+        </div>
+        <div id="airportList" class="airport-list"></div>
+      </section>
+
+      <section id="settingsView" class="view">
+        <div class="settings-card">
+          <h2>データ管理</h2>
+          <button id="exportBtn" class="settings-row">
+            <span>完全バックアップを書き出す</span><span>›</span>
+          </button>
+          <label class="settings-row file-row">
+            <span>バックアップを読み込む</span><span>›</span>
+            <input id="importInput" type="file" accept="application/json,.json" />
+          </label>
+        </div>
+
+        <div class="settings-card">
+          <h2>空港管理</h2>
+          <button id="addAirportBtn" class="settings-row">
+            <span>空港を追加する</span><span>＋</span>
+          </button>
+          <button id="resetBtn" class="settings-row danger">
+            <span>初期データに戻す</span><span>›</span>
+          </button>
+        </div>
+
+        <div class="settings-card about">
+          <h2>このアプリについて</h2>
+          <p>御翔印の取得状況を端末内に保存して管理するシンプルなアプリです。</p>
+          <p class="muted">Ver. 1.0</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-view="home">
+        <span>⌂</span><small>ホーム</small>
+      </button>
+      <button class="nav-btn" data-view="airports">
+        <span>✈</span><small>空港一覧</small>
+      </button>
+      <button class="nav-btn" data-view="settings">
+        <span>⚙</span><small>設定</small>
+      </button>
+    </nav>
+  </div>
+
+  <dialog id="airportDialog">
+    <form method="dialog" id="airportForm" class="dialog-card">
+      <div class="dialog-head">
+        <button type="button" id="closeDialogBtn" class="text-btn">閉じる</button>
+        <h2 id="dialogTitle">空港詳細</h2>
+        <button type="submit" class="text-btn primary">保存</button>
+      </div>
+
+      <input type="hidden" id="airportId" />
+
+      <div class="photo-box">
+        <img id="photoPreview" alt="" />
+        <div id="photoPlaceholder" class="photo-placeholder">
+          <div class="stamp-mini">翔</div>
+          <span>御翔印の写真</span>
+        </div>
+        <label class="photo-button">
+          写真を選ぶ
+          <input id="photoInput" type="file" accept="image/*" />
+        </label>
+        <button type="button" id="removePhotoBtn" class="small-danger">写真を削除</button>
+      </div>
+
+      <label class="field">
+        <span>空港名</span>
+        <input id="airportName" required />
+      </label>
+
+      <div class="two-col">
+        <label class="field">
+          <span>空港コード</span>
+          <input id="airportCode" maxlength="4" placeholder="例：HND" />
+        </label>
+        <label class="field">
+          <span>都道府県</span>
+          <input id="airportPref" placeholder="例：東京都" />
+        </label>
+      </div>
+
+      <label class="check-row">
+        <input id="airportCollected" type="checkbox" />
+        <span>取得済みにする</span>
+      </label>
+
+      <label class="field">
+        <span>取得日</span>
+        <input id="airportDate" type="date" />
+      </label>
+
+      <label class="field">
+        <span>メモ</span>
+        <textarea id="airportMemo" rows="4" placeholder="購入場所・旅の思い出など"></textarea>
+      </label>
+
+      <button type="button" id="deleteAirportBtn" class="delete-btn">この空港を削除</button>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
