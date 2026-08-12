@@ -59,7 +59,7 @@ const seedAirports = [
   {name:'宮古空港', code:'MMY', pref:'沖縄県'},
   {name:'根室中標津空港', code:'SHB', pref:'北海道'}
 ].map((a,i)=>({
-  id:'seed-'+i, ...a, collected:false, memo:'', createdAt:i
+  id:'seed-'+i, ...a, collected:false, memo:'', lastCollectedAt:null, createdAt:i
 }));
 
 let state = loadState();
@@ -98,6 +98,11 @@ function loadState(){
       }
     });
   }
+
+  // 既存データに内部取得日時がない場合は補完
+  loaded.airports.forEach(a => {
+    if(!('lastCollectedAt' in a)) a.lastCollectedAt = null;
+  });
 
   // マージ後の内容を保存
   try{
@@ -141,7 +146,7 @@ function renderHome(){
 
   const recent = state.airports
     .filter(a=>a.collected)
-    .sort((a,b)=>(b.createdAt??0)-(a.createdAt??0))
+    .sort((a,b)=>(b.lastCollectedAt||0)-(a.lastCollectedAt||0))
     .slice(0,5);
 
   const el = document.getElementById('recentList');
@@ -266,11 +271,23 @@ document.getElementById('airportForm').addEventListener('submit',(e)=>{
   if(!data.name) return;
   if(editingId){
     const a=state.airports.find(x=>x.id===editingId);
+    const wasCollected = !!a.collected;
+    const nowCollected = !!data.collected;
+
+    if(!wasCollected && nowCollected){
+      data.lastCollectedAt = Date.now();
+    }else if(wasCollected && !nowCollected){
+      data.lastCollectedAt = null;
+    }else{
+      data.lastCollectedAt = a.lastCollectedAt ?? null;
+    }
+
     Object.assign(a,data);
   }else{
     state.airports.push({
       id:'custom-'+Date.now(),
       ...data,
+      lastCollectedAt: data.collected ? Date.now() : null,
       createdAt:Math.max(-1,...state.airports.map(a=>a.createdAt??0))+1
     });
   }

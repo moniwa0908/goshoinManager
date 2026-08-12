@@ -1,4 +1,4 @@
-const CACHE='goshoin-v1-6';
+const CACHE='goshoin-v1-7';
 const ASSETS=['./','./index.html','./style.css','./app.js','./manifest.json','./icon-192.png','./icon-512.png'];
 
 self.addEventListener('install', event => {
